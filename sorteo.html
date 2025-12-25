@@ -485,7 +485,6 @@
         let ganadores = [];
 
         async function obtenerFoto(username) {
-            // Generar avatar con iniciales estilo moderno
             const colors = ['667eea', 'FF6B9D', '764ba2', 'FFD700', '00CED1', 'FF69B4', 'FFA500'];
             const color = colors[Math.abs(username.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % colors.length];
             return `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&size=200&background=${color}&color=fff&bold=true&format=png&rounded=true`;
@@ -534,7 +533,6 @@
                 const div = document.createElement('div');
                 div.className = 'participant';
                 
-                // FORZAR AVATAR - URL directa sin variable
                 const avatarUrl = `https://ui-avatars.com/api/?name=${usuario}&size=45&background=667eea&color=ffffff&bold=true`;
                 
                 div.innerHTML = `<img src="${avatarUrl}" class="participant-photo" onerror="this.style.display='none'"><span>@${usuario}</span>`;
