@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteo IG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-x: hidden;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .title {
+            font-size: 3.5em;
+            font-weight: 900;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.5em;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .input-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 15px;
+            border: none;
+            font-size: 1em;
+            margin-bottom: 15px;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            border-radius: 15px;
+            border: none;
+            background: white;
+            color: #667eea;
+            font-size: 1.3em;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .participant-scroll {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .participant {
+            background: white;
+            color: #667eea;
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin: 10px 0;
+            font-weight: 700;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: scale(0) rotate(-180deg);
+        }
+
+        .participant.show {
+            animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1) rotate(0);
+            }
+        }
+
+        .participant-photo {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #667eea;
+            background: #667eea;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+            margin: 30px 0;
+        }
+
+        .stat-box {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 25px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            transform: scale(0);
+            text-align: center;
+        }
+
+        .stat-box.show {
+            animation: scaleUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes scaleUp {
+            to { transform: scale(1); }
+        }
+
+        .stat-icon {
+            font-size: 2em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #667eea;
+            font-weight: 700;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .roulette-container {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px 20px;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+        }
+
+        .roulette-window {
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .roulette-track {
+            position: absolute;
+            width: 100%;
+        }
+
+        .roulette-item {
+            background: white;
+            color: #667eea;
+            padding: 25px;
+            margin: 10px 0;
+            border-radius: 15px;
+            font-size: 1.8em;
+            font-weight: 900;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .roulette-indicator {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 4px;
+            background: #FFD700;
+            box-shadow: 0 0 20px #FFD700;
+            transform: translateY(-50%);
+            z-index: 10;
+            border-radius: 2px;
+        }
+
+        .winner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+        }
+
+        .winner-overlay.show {
+            display: block;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .winner-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+            background: white;
+            border-radius: 30px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            z-index: 1000;
+            width: 90%;
+            max-width: 350px;
+        }
+
+        .winner-popup.show {
+            animation: popupExplode 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes popupExplode {
+            to { transform: translate(-50%, -50%) scale(1) rotate(0); }
+        }
+
+        .winner-photo-big {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            border: 5px solid #667eea;
+            object-fit: cover;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background: #667eea;
+        }
+
+        .winner-icon {
+            font-size: 5em;
+            margin: 15px 0;
+            display: inline-block;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: spinIn 0.8s ease-out;
+        }
+
+        @keyframes spinIn {
+            from { transform: rotate(-360deg) scale(0); }
+            to { transform: rotate(0) scale(1); }
+        }
+
+        .winner-name {
+            font-size: 2em;
+            font-weight: 900;
+            color: #667eea;
+            margin: 15px 0;
+        }
+
+        .winner-prize {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #764ba2;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            z-index: 1001;
+            pointer-events: none;
+        }
+
+        .final-podium {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .final-winner {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .final-winner.show {
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .final-winner-icon {
+            font-size: 3em;
+        }
+
+        .final-winner-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #667eea;
+            background: #667eea;
+        }
+
+        .final-winner-info {
+            flex: 1;
+        }
+
+        .final-winner-prize {
+            font-size: 0.9em;
+            color: #764ba2;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .final-winner-name {
+            font-size: 1.5em;
+            font-weight: 900;
+            color: #667eea;
+        }
+
+        .hide { display: none; }
+    </style>
+</head>
+<body>
+    <div id="inputScreen" class="screen">
+        <div class="title">
+            <i class="fas fa-gift"></i>
+            SORTEO
+        </div>
+        <div class="subtitle">Ingresa los participantes</div>
+        <div class="input-container">
+            <textarea id="post1" placeholder="Publicación 1&#10;usuario1&#10;usuario2&#10;usuario2"></textarea>
+            <textarea id="post2" placeholder="Publicación 2&#10;usuario3&#10;usuario4"></textarea>
+            <textarea id="post3" placeholder="Publicación 3&#10;usuario5&#10;usuario6"></textarea>
+            <button onclick="prepararSorteo()">PREPARAR SORTEO</button>
+        </div>
+    </div>
+
+    <div id="readyScreen" class="screen hide">
+        <div class="title">
+            <i class="fas fa-gift"></i>
+            SORTEO
+        </div>
+        <div class="input-container">
+            <button onclick="iniciarSorteo()">EMPEZAR SORTEO</button>
+        </div>
+    </div>
+
+    <div id="searchScreen" class="screen hide">
+        <div class="title">
+            <i class="fas fa-search"></i>
+            ESCANEANDO
+        </div>
+        <div class="subtitle">Comentarios</div>
+        <div class="participant-scroll" id="participantList"></div>
+    </div>
+
+    <div id="countScreen" class="screen hide">
+        <div class="title">
+            <i class="fas fa-chart-bar"></i>
+            TOTAL
+        </div>
+        <div class="stats-container">
+            <div class="stat-box" id="commentsBox">
+                <div class="stat-icon"><i class="fas fa-comments"></i></div>
+                <div class="stat-number" id="commentsNumber">0</div>
+                <div class="stat-label">Comentarios</div>
+            </div>
+            <div class="stat-box" id="participantsBox">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-number" id="participantsNumber">0</div>
+                <div class="stat-label">Participantes</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rouletteScreen" class="screen hide">
+        <div class="title">
+            <i class="fas fa-dice"></i>
+            SORTEANDO
+        </div>
+        <div class="roulette-container">
+            <div class="roulette-window">
+                <div class="roulette-indicator"></div>
+                <div class="roulette-track" id="rouletteTrack"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="winner-overlay" id="winnerOverlay"></div>
+    <div class="winner-popup" id="winnerPopup"></div>
+
+    <div id="finalScreen" class="screen hide">
+        <div class="title">
+            <i class="fas fa-trophy"></i>
+            GANADORES
+        </div>
+        <div class="final-podium" id="finalPodium"></div>
+    </div>
+
+    <script>
+        let todosParticipantes = [];
+        let participantesUnicos = [];
+        let fotos = {};
+        let ganadores = [];
+
+        async function obtenerFoto(username) {
+            // Generar avatar con iniciales estilo moderno
+            const colors = ['667eea', 'FF6B9D', '764ba2', 'FFD700', '00CED1', 'FF69B4', 'FFA500'];
+            const color = colors[Math.abs(username.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % colors.length];
+            return `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&size=200&background=${color}&color=fff&bold=true&format=png&rounded=true`;
+        }
+
+        async function obtenerTodasLasFotos(usuarios) {
+            console.log('Generando avatares para', usuarios.length, 'usuarios');
+            for (const user of usuarios) {
+                fotos[user] = obtenerFoto(user);
+            }
+            console.log('Avatares listos:', fotos);
+        }
+
+        async function prepararSorteo() {
+            const post1 = document.getElementById('post1').value.split('\n').map(n => n.trim().replace('@', '')).filter(n => n);
+            const post2 = document.getElementById('post2').value.split('\n').map(n => n.trim().replace('@', '')).filter(n => n);
+            const post3 = document.getElementById('post3').value.split('\n').map(n => n.trim().replace('@', '')).filter(n => n);
+
+            todosParticipantes = [...post1, ...post2, ...post3];
+            participantesUnicos = [...new Set(todosParticipantes)];
+
+            if (participantesUnicos.length < 3) {
+                alert('Necesitas al menos 3 participantes únicos');
+                return;
+            }
+
+            document.getElementById('inputScreen').classList.add('hide');
+            document.getElementById('readyScreen').classList.remove('hide');
+
+            await obtenerTodasLasFotos(participantesUnicos);
+        }
+
+        function iniciarSorteo() {
+            document.getElementById('readyScreen').classList.add('hide');
+            mostrarParticipantes();
+        }
+
+        async function mostrarParticipantes() {
+            document.getElementById('searchScreen').classList.remove('hide');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            const lista = document.getElementById('participantList');
+            
+            for (let i = 0; i < todosParticipantes.length; i++) {
+                const usuario = todosParticipantes[i];
+                const div = document.createElement('div');
+                div.className = 'participant';
+                
+                // FORZAR AVATAR - URL directa sin variable
+                const avatarUrl = `https://ui-avatars.com/api/?name=${usuario}&size=45&background=667eea&color=ffffff&bold=true`;
+                
+                div.innerHTML = `<img src="${avatarUrl}" class="participant-photo" onerror="this.style.display='none'"><span>@${usuario}</span>`;
+                lista.appendChild(div);
+
+                await new Promise(resolve => setTimeout(resolve, 30));
+                div.classList.add('show');
+                
+                lista.scrollTop = lista.scrollHeight;
+                await new Promise(resolve => setTimeout(resolve, 80));
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+            mostrarContadores();
+        }
+
+        async function mostrarContadores() {
+            document.getElementById('searchScreen').classList.add('hide');
+            document.getElementById('countScreen').classList.remove('hide');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            const commentsBox = document.getElementById('commentsBox');
+            const participantsBox = document.getElementById('participantsBox');
+            const commentsNumber = document.getElementById('commentsNumber');
+            const participantsNumber = document.getElementById('participantsNumber');
+            
+            commentsBox.classList.add('show');
+            
+            await new Promise(resolve => setTimeout(resolve, 150));
+            participantsBox.classList.add('show');
+
+            const totalComments = todosParticipantes.length;
+            const totalParticipants = participantesUnicos.length;
+            
+            let comments = 0;
+            let participants = 0;
+            const duration = 800;
+            const steps = 20;
+            const commentsIncrement = totalComments / steps;
+            const participantsIncrement = totalParticipants / steps;
+            const stepDuration = duration / steps;
+
+            const interval = setInterval(() => {
+                comments += commentsIncrement;
+                participants += participantsIncrement;
+                
+                if (comments >= totalComments && participants >= totalParticipants) {
+                    comments = totalComments;
+                    participants = totalParticipants;
+                    clearInterval(interval);
+                    setTimeout(iniciarRuleta, 2500);
+                }
+                
+                commentsNumber.textContent = Math.floor(comments);
+                participantsNumber.textContent = Math.floor(participants);
+            }, stepDuration);
+        }
+
+        async function iniciarRuleta() {
+            document.getElementById('countScreen').classList.add('hide');
+            document.getElementById('rouletteScreen').classList.remove('hide');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            const participantes = [...participantesUnicos].filter(p => !ganadores.includes(p));
+            const track = document.getElementById('rouletteTrack');
+            track.innerHTML = '';
+            track.style.transition = 'none';
+
+            const repeticiones = 15;
+            const items = [];
+            for (let i = 0; i < participantes.length * repeticiones; i++) {
+                items.push(participantes[i % participantes.length]);
+            }
+
+            items.forEach(nombre => {
+                const div = document.createElement('div');
+                div.className = 'roulette-item';
+                div.textContent = `@${nombre}`;
+                track.appendChild(div);
+            });
+
+            const ganadorIndex = Math.floor(Math.random() * participantes.length);
+            const ganador = participantes[ganadorIndex];
+            
+            const itemHeight = 95;
+            const posicionGanador = (participantes.length * (repeticiones - 3)) + ganadorIndex;
+            const targetPosition = posicionGanador * itemHeight - 47.5;
+
+            let position = 0;
+            track.style.transform = `translateY(0px)`;
+
+            const velocidades = [
+                { duracion: 600, intervalo: 40 },
+                { duracion: 500, intervalo: 60 },
+                { duracion: 400, intervalo: 90 }
+            ];
+
+            for (const vel of velocidades) {
+                const pasos = vel.duracion / vel.intervalo;
+                for (let i = 0; i < pasos; i++) {
+                    position += itemHeight;
+                    track.style.transform = `translateY(-${position}px)`;
+                    await new Promise(resolve => setTimeout(resolve, vel.intervalo));
+                }
+            }
+
+            track.style.transition = 'transform 1s cubic-bezier(0.17, 0.67, 0.3, 0.98)';
+            track.style.transform = `translateY(-${targetPosition}px)`;
+
+            await new Promise(resolve => setTimeout(resolve, 1100));
+
+            ganadores.push(ganador);
+            mostrarGanador(ganador);
+        }
+
+        async function mostrarGanador(ganador) {
+            const premios = [
+                { icon: 'fa-trophy', label: 'PRIMER PREMIO', color: '#FFD700' },
+                { icon: 'fa-medal', label: 'SEGUNDO PREMIO', color: '#C0C0C0' },
+                { icon: 'fa-award', label: 'TERCER PREMIO', color: '#CD7F32' }
+            ];
+            const premio = premios[ganadores.length - 1];
+
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = Math.random() * 100 + '%';
+                confetti.style.background = ['#FFD700', '#FF69B4', '#00CED1', '#FF1493', '#FFA500'][Math.floor(Math.random() * 5)];
+                confetti.style.animation = `confettiFall ${2 + Math.random() * 2}s ease-out ${Math.random()}s forwards`;
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 4000);
+            }
+
+            const overlay = document.getElementById('winnerOverlay');
+            const popup = document.getElementById('winnerPopup');
+
+            const avatarUrl = `https://ui-avatars.com/api/?name=${ganador}&size=120&background=667eea&color=ffffff&bold=true`;
+
+            popup.innerHTML = `
+                <div class="winner-icon"><i class="fas ${premio.icon}" style="color: ${premio.color};"></i></div>
+                <img src="${avatarUrl}" class="winner-photo-big" onerror="this.style.display='none'">
+                <div class="winner-name">@${ganador}</div>
+                <div class="winner-prize">${premio.label}</div>
+            `;
+
+            overlay.classList.add('show');
+            await new Promise(resolve => setTimeout(resolve, 100));
+            popup.classList.add('show');
+
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            popup.classList.remove('show');
+            overlay.classList.remove('show');
+
+            await new Promise(resolve => setTimeout(resolve, 400));
+
+            if (ganadores.length < 3) {
+                document.getElementById('rouletteScreen').classList.remove('hide');
+                await new Promise(resolve => setTimeout(resolve, 300));
+                iniciarRuleta();
+            } else {
+                mostrarPodioFinal();
+            }
+        }
+
+        async function mostrarPodioFinal() {
+            document.getElementById('rouletteScreen').classList.add('hide');
+            document.getElementById('finalScreen').classList.remove('hide');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            const podio = document.getElementById('finalPodium');
+            const premios = [
+                { icon: 'fa-trophy', label: 'PRIMER PREMIO', color: '#FFD700' },
+                { icon: 'fa-medal', label: 'SEGUNDO PREMIO', color: '#C0C0C0' },
+                { icon: 'fa-award', label: 'TERCER PREMIO', color: '#CD7F32' }
+            ];
+
+            for (let i = 0; i < ganadores.length; i++) {
+                const ganador = ganadores[i];
+                const premio = premios[i];
+                const avatarUrl = `https://ui-avatars.com/api/?name=${ganador}&size=80&background=667eea&color=ffffff&bold=true`;
+
+                const div = document.createElement('div');
+                div.className = 'final-winner';
+                div.innerHTML = `
+                    <div class="final-winner-icon"><i class="fas ${premio.icon}" style="color: ${premio.color};"></i></div>
+                    <img src="${avatarUrl}" class="final-winner-photo" onerror="this.style.display='none'">
+                    <div class="final-winner-info">
+                        <div class="final-winner-prize">${premio.label}</div>
+                        <div class="final-winner-name">@${ganador}</div>
+                    </div>
+                `;
+                podio.appendChild(div);
+
+                await new Promise(resolve => setTimeout(resolve, 200));
+                div.classList.add('show');
+                await new Promise(resolve => setTimeout(resolve, 400));
+            }
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes confettiFall {
+                0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+                100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
